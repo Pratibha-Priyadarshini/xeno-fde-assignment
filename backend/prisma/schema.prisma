@@ -14,6 +14,7 @@ model Tenant {
   apiKey     String?
   apiSecret  String?
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   stores     Store[]
   users      User[]
 }
@@ -24,10 +25,13 @@ model Store {
   name      String
   domain    String
   createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   customers Customer[]
   products  Product[]
   orders    Order[]
+
+  @@index([tenantId])
 }
 
 model User {
@@ -37,7 +41,10 @@ model User {
   password  String
   role      String   @default("admin")
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
 }
 
 model Customer {
@@ -49,8 +56,11 @@ model Customer {
   lastName   String?
   totalSpent Float    @default(0)
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   store      Store    @relation(fields: [storeId], references: [id])
   orders     Order[]
+
+  @@index([storeId])
 }
 
 model Product {
@@ -60,7 +70,10 @@ model Product {
   title      String
   price      Float
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   store      Store    @relation(fields: [storeId], references: [id])
+
+  @@index([storeId])
 }
 
 model Order {
@@ -70,6 +83,10 @@ model Order {
   customerId Int?
   totalPrice Float
   createdAt  DateTime
+  updatedAt  DateTime @updatedAt
   store      Store    @relation(fields: [storeId], references: [id])
   customer   Customer? @relation(fields: [customerId], references: [id])
+
+  @@index([storeId])
+  @@index([customerId])
 }
