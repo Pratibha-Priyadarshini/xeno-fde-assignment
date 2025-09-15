@@ -39,4 +39,4 @@ COPY --from=builder /app/node_modules ./node_modules
 EXPOSE 3000
 
 # Start the server
-CMD ["node", "dist/app.js"]
+CMD ["node", "dist/src/app.js"]
