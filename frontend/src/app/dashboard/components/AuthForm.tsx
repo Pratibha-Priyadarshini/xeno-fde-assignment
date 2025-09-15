@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
+// Update the import path below if your api file is at 'src/lib/api.ts'
 import api from "../../../lib/api";
 
 export default function AuthForm() {
-  const [isSignup, setIsSignup] = useState(false);
+  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [tenantName, setTenantName] = useState("");
@@ -13,85 +14,39 @@ export default function AuthForm() {
   async function handleSubmit(e: any) {
     e.preventDefault();
     try {
-      let res;
-      if (isSignup) {
-        res = await api.post("/auth/signup", {
-          email,
-          password,
-          tenantName,
-          shopDomain,
-        });
+      if (mode === "login") {
+        const res = await api.post("/auth/signin", { email, password });
+        localStorage.setItem("token", res.token);
+        window.location.href = "/dashboard";
       } else {
-        res = await api.post("/auth/signin", { email, password });
+        // pass tenantName & shopDomain (backend will auto-generate if omitted)
+        const res = await api.post("/auth/signup", { email, password, tenantName, shopDomain });
+        localStorage.setItem("token", res.token);
+        window.location.href = "/dashboard";
       }
-      localStorage.setItem("token", res.token);
-      window.location.href = "/dashboard";
-    } catch (err) {
-      alert("Authentication failed!");
+    } catch (err: any) {
+      alert(err?.message || "Auth error");
     }
   }
 
   return (
-    <motion.form
-      className="bg-gray-900 p-8 rounded-2xl shadow-xl w-96"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      onSubmit={handleSubmit}
-    >
-      <h2 className="text-2xl font-bold mb-4 text-yellow-400">
-        {isSignup ? "Sign Up" : "Sign In"}
-      </h2>
-      <input
-        type="email"
-        placeholder="Email"
-        className="w-full p-2 mb-3 rounded bg-gray-800 text-white"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        className="w-full p-2 mb-4 rounded bg-gray-800 text-white"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
+    <motion.div className="card p-8 w-full max-w-md mx-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <div className="flex gap-2 mb-6">
+        <button className={`flex-1 py-2 rounded ${mode === "login" ? "bg-yellow-500 text-black" : "text-yellow-300"}`} onClick={() => setMode("login")}>Login</button>
+        <button className={`flex-1 py-2 rounded ${mode === "signup" ? "bg-yellow-500 text-black" : "text-yellow-300"}`} onClick={() => setMode("signup")}>Sign up</button>
+      </div>
 
-      {isSignup && (
-        <>
-          <input
-            type="text"
-            placeholder="Tenant Name"
-            className="w-full p-2 mb-3 rounded bg-gray-800 text-white"
-            value={tenantName}
-            onChange={(e) => setTenantName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Shop Domain"
-            className="w-full p-2 mb-4 rounded bg-gray-800 text-white"
-            value={shopDomain}
-            onChange={(e) => setShopDomain(e.target.value)}
-          />
-        </>
-      )}
-
-      <button
-        type="submit"
-        className="w-full p-2 mb-4 rounded bg-gradient-to-r from-yellow-400 to-yellow-600 font-bold text-black hover:scale-105 transition"
-      >
-        {isSignup ? "Create Account" : "Login"}
-      </button>
-
-      <p
-        className="text-yellow-300 text-sm cursor-pointer hover:underline"
-        onClick={() => setIsSignup(!isSignup)}
-      >
-        {isSignup
-          ? "Already have an account? Sign in"
-          : "New user? Create an account"}
-      </p>
-    </motion.form>
+      <form onSubmit={handleSubmit}>
+        <input required value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="w-full p-3 rounded mb-3 bg-black/40" />
+        <input required value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Password" className="w-full p-3 rounded mb-3 bg-black/40" />
+        {mode === "signup" && (
+          <>
+            <input value={tenantName} onChange={e => setTenantName(e.target.value)} placeholder="Tenant name (optional)" className="w-full p-3 rounded mb-3 bg-black/40" />
+            <input value={shopDomain} onChange={e => setShopDomain(e.target.value)} placeholder="Shop domain (optional)" className="w-full p-3 rounded mb-3 bg-black/40" />
+          </>
+        )}
+        <button type="submit" className="w-full py-3 rounded bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-semibold">{mode === "login" ? "Login" : "Create account"}</button>
+      </form>
+    </motion.div>
   );
 }

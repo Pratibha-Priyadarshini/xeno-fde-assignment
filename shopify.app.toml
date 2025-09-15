@@ -1,0 +1,11 @@
+# Minimal Shopify app config
+name = "Xeno FDE Dashboard"
+type = "node"
+api_key = "YOUR_SHOPIFY_API_KEY"
+api_secret = "YOUR_SHOPIFY_API_SECRET"
+scopes = "read_products,read_orders,read_customers"
+host = "http://localhost:3000"
+embedded = false
+
+[web]
+  port = 3000

@@ -1,10 +1,7 @@
 import { Request, Response, NextFunction } from "express";
+import { AuthRequest } from "./auth.middleware";
 
-/**
- * Expects a tenant-id either in header 'x-tenant-id' or in JWT (req.user)
- * Attaches req.tenantId
- */
-export interface TenantRequest extends Request {
+export interface TenantRequest extends AuthRequest {
   tenantId?: number;
 }
 
@@ -19,6 +16,10 @@ export function tenantMiddleware(req: TenantRequest, res: Response, next: NextFu
     return res.status(400).json({ message: "Invalid x-tenant-id header" });
   }
 
-  // else, allow route to continue (some routes will read from JWT instead)
+  // fallback to JWT tenantId if available
+  if (req.user?.tenantId) {
+    req.tenantId = req.user.tenantId;
+  }
+
   next();
 }

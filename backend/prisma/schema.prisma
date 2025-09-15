@@ -8,15 +8,16 @@ datasource db {
 }
 
 model Tenant {
-  id         Int      @id @default(autoincrement())
-  name       String
-  shopDomain String   @unique
-  apiKey     String?
-  apiSecret  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  stores     Store[]
-  users      User[]
+  id                  Int       @id @default(autoincrement())
+  name                String
+  shopDomain          String    @unique
+  apiKey              String?
+  apiSecret           String?
+  webhooksRegistered  Boolean   @default(false) // ✅ added
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  stores              Store[]
+  users               User[]
 }
 
 model Store {
@@ -77,9 +78,9 @@ model Product {
 }
 
 model Order {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   storeId    Int
-  externalId String   @unique
+  externalId String    @unique
   customerId Int?
   totalPrice Float
   createdAt  DateTime

@@ -10,11 +10,12 @@ export const app = express();
 
 app.use(cors());
 app.use(json({ limit: "2mb" }));
-app.use(morgan("dev"));
+app.use(morgan("dev")); // dev-friendly logging
 
 app.get("/", (_req, res) => res.json({ ok: true, service: "xeno-fde-backend" }));
 
+// API routes
 app.use("/api", indexRoutes);
 
-// central error handler
+// Central error handler
 app.use(errorHandler);

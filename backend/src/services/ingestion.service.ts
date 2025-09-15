@@ -19,7 +19,7 @@ export async function upsertCustomerFromWebhook(tenantId: number, payload: any) 
   if (!externalId) throw new Error("Missing external id in customer payload");
 
   const data: Prisma.CustomerCreateInput = {
-    storeId: store.id,
+    store: { connect: { id: store.id } },
     externalId,
     email: payload.email || null,
     firstName: payload.first_name || payload.firstName || null,
